@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="WebCATPluginTester">
+
+	<property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.5"/>
+    <property name="source" value="1.5"/>
+
+	<path id="WebCATPluginTester.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/commons-configuration-1.6.jar"/>
+        <pathelement location="lib/commons-lang-2.4.jar"/>
+        <pathelement location="lib/commons-logging-1.1.1.jar"/>
+        <pathelement location="lib/commons-collections-3.2.1.jar"/>
+    </path>
+
+	<target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset
+              dir="src"
+              excludes="**/*.launch, **/*.java, **/.plugintester.config"/>
+        </copy>
+    </target>
+
+	<target name="clean">
+        <delete dir="bin"/>
+    </target>
+
+	<target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac
+          debug="true"
+          debuglevel="${debuglevel}"
+          destdir="bin"
+          source="${source}"
+          target="${target}">
+            <src path="src"/>
+            <classpath refid="WebCATPluginTester.classpath"/>
+        </javac>
+    </target>
+
+    <target depends="build" name="create-jar">
+        <jar
+          destfile="WCPluginTester.jar"
+          filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class"
+                	value="net.sf.webcat.plugintester.Application"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="bin"/>
+            <zipfileset src="lib/commons-configuration-1.6.jar"/>
+            <zipfileset src="lib/commons-lang-2.4.jar"/>
+            <zipfileset src="lib/commons-logging-1.1.1.jar"/>
+            <zipfileset src="lib/commons-collections-3.2.1.jar"/>
+        </jar>
+    </target>
+
+</project>
