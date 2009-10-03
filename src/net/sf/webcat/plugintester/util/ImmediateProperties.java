@@ -29,7 +29,8 @@ import java.util.Properties;
 //-------------------------------------------------------------------------
 /**
  * A subclass of the java.util.Properties class that must be initialized from
- * a file on disk
+ * a file on disk, and which always keeps the in-memory property set in sync
+ * with the contents on disk.
  * 
  * @author Tony Allevato
  * @version $Id$

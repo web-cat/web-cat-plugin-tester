@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import net.sf.webcat.plugintester.util.PluginConfiguration;
@@ -131,6 +132,9 @@ public class PluginRunner
 
         try
         {
+        	System.out.println("Executing the following argument list:");
+        	System.out.println(Arrays.toString(cmdArray));
+
             if (cmdArray != null)
             {
                 process = Runtime.getRuntime().exec(cmdArray, envp, resultsDir);
@@ -201,8 +205,8 @@ public class PluginRunner
         PluginConfiguration config =
             new PluginConfiguration(new File(pluginDir));
 
-        String executable =
-            pluginDir + "/" + config.getRootProperty("executable");
+        String executable = "\"" +
+            pluginDir + "/" + config.getRootProperty("executable") + "\"";
         
         String interpreterPrefix =
             config.getRootProperty("interpreter..prefix");
@@ -215,13 +219,15 @@ public class PluginRunner
         String cmdLine;
         cmdLine = substituteApplicationProperties(executable);
         cmdLine += " ";
-        cmdLine += new File(resultsDir, "grading.properties").getAbsolutePath();
+        cmdLine += "\"" +
+        	new File(resultsDir, "grading.properties").getAbsolutePath() +
+        	"\"";
         
         File stdoutFile = new File(resultsDir, "" + index + "-stdout.txt");
         File stderrFile = new File(resultsDir, "" + index + "-stderr.txt");
 
-        cmdLine += " 1> " + stdoutFile.getAbsolutePath();
-        cmdLine += " 2> " + stderrFile.getAbsolutePath();
+        cmdLine += " 1> \"" + stdoutFile.getAbsolutePath() + "\"";
+        cmdLine += " 2> \"" + stderrFile.getAbsolutePath() + "\"";
 
         return cmdLine;
     }
