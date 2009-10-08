@@ -86,7 +86,7 @@ public class MainFrameBuilder
         currentSettings = settings;
 
         frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setTitle("Web-CAT Plug-in Tester");
 
         constructFrame(frame);
@@ -122,6 +122,10 @@ public class MainFrameBuilder
         bottomPanel = new JPanel();
         runButton = new JButton();
         mainPanel = new JPanel();
+        JLabel webCatHomeLabel = new JLabel();
+        webCatHomeField = new JTextField();
+        webCatHomeBrowseButton = new JButton();
+        JSeparator jSeparator0 = new JSeparator();
         JLabel submissionLabel = new JLabel();
         submissionField = new JTextField();
         submissionBrowseButton = new JButton();
@@ -162,9 +166,42 @@ public class MainFrameBuilder
         mainPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         mainPanel.setLayout(new GridBagLayout());
 
+        // Web-CAT Home field
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = GridBagConstraints.RELATIVE;
+        gridBagConstraints.anchor = GridBagConstraints.LINE_START;
+        webCatHomeLabel.setText("Web-CAT Home:");
+        mainPanel.add(webCatHomeLabel, gridBagConstraints);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        webCatHomeField.setTransferHandler(new WebCATHomeTransferHandler());
+        mainPanel.add(webCatHomeField, gridBagConstraints);
+
+        // Web-CAT Home browse button
+        webCatHomeBrowseButton.setText("Browse...");
+        webCatHomeBrowseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                webCatHomeBrowseButtonActionPerformed(evt);
+            }
+        });
+        mainPanel.add(webCatHomeBrowseButton, new GridBagConstraints());
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(jSeparator0, gridBagConstraints);
+
         // Submission field
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = GridBagConstraints.RELATIVE;
+        gridBagConstraints.anchor = GridBagConstraints.LINE_START;
         submissionLabel.setText("Submission:");
-        mainPanel.add(submissionLabel, new GridBagConstraints());
+        mainPanel.add(submissionLabel, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -257,15 +294,13 @@ public class MainFrameBuilder
         propertiesPanel.setLayout(new GridBagLayout());
 
         propertiesEditor.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e)
-            {
+            public void keyTyped(KeyEvent e) {
                 propertiesTimer.restart();
             }
         });
 
         propertiesTimer = new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 updateGradingProperties();
             }
         });
@@ -315,6 +350,14 @@ public class MainFrameBuilder
      */
     private void initializeFields()
     {
+    	String homePath = currentSettings.getProperty(
+    			AppConstants.PROP_WEBCAT_HOME);
+    	
+    	if (homePath != null)
+    	{
+    		webCatHomeField.setText(homePath);
+    	}
+
         String subPath = currentSettings.getProperty(
                 AppConstants.PROP_LAST_SUBMISSION_PATH);
         
@@ -334,6 +377,46 @@ public class MainFrameBuilder
         }
         
         updateDocumentationPane();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Sets the Web-CAT home location to the specified directory.
+     * 
+     * @param file a File object that represents the directory containing the
+     *     Web-CAT server
+     */
+    private void setWebCATHome(File file)
+    {
+        String path;
+        
+        if (file.isDirectory())
+        {
+            path = file.getAbsolutePath();
+        }
+        else
+        {
+            path = null;
+            JOptionPane.showMessageDialog(frame,
+                    "The selection you have made does not appear to be\n" +
+                    "a valid submission. You should select the directory\n" +
+                    "that represents the expanded submission contents.\n",
+                    "Not a valid submission",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+        webCatHomeField.setText(path);
+        
+        if (path == null)
+        {
+            currentSettings.remove(AppConstants.PROP_WEBCAT_HOME);
+        }
+        else
+        {
+            currentSettings.setProperty(AppConstants.PROP_WEBCAT_HOME, path);
+            webcatConfig = new WebCATConfiguration(path);
+        }
     }
 
 
@@ -437,6 +520,22 @@ public class MainFrameBuilder
 
         currentSettings.setProperty(AppConstants.PROP_USER_GRADING_PROPERTIES,
                 props);
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Called when the "Browse..." button is pressed to let the user choose the
+     * Web-CAT home location.
+     * 
+     * @param evt the event
+     */
+    private void webCatHomeBrowseButtonActionPerformed(ActionEvent evt)
+    {
+        if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+        {
+            setWebCATHome(fileChooser.getSelectedFile());
+        }
     }
 
 
@@ -641,6 +740,77 @@ public class MainFrameBuilder
 
 
     // ----------------------------------------------------------
+    /**
+     * Handles drop operations of a file onto the current submission text
+     * field.
+     */
+    private class WebCATHomeTransferHandler extends TransferHandler
+    {
+		//~ Methods ...........................................................
+
+        // ----------------------------------------------------------
+        /**
+         * Returns true if the dropped content is a file; otherwise, false.
+         * 
+         * @param comp the component receiving the drop
+         * @param transferFlavors the data flavors of the content being dropped
+         * @return true if the dropped content is a file; otherwise, false.
+         */
+        public boolean canImport(JComponent comp,
+                DataFlavor[] transferFlavors)
+        {
+            for (DataFlavor flavor : transferFlavors)
+            {
+                if (flavor.isFlavorJavaFileListType())
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+
+        // ----------------------------------------------------------
+        /**
+         * Sets the current submission for testing to the dropped file, if
+         * possible.
+         * 
+         * @param comp the component receiving the drop
+         * @param t the data being dropped
+         * @return true if the content was successfully dropped; otherwise,
+         *     false.
+         */
+        public boolean importData(JComponent comp, Transferable t)
+        {
+            try
+            {
+                @SuppressWarnings("unchecked")
+                List<File> files = (List<File>) t.getTransferData(
+                        DataFlavor.javaFileListFlavor);
+
+                if (files.size() == 1)
+                {
+                    setWebCATHome(files.get(0));
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            
+            return false;
+        }
+
+
+        //~ Instance/static variables .........................................
+
+		private static final long serialVersionUID = 771815718413890191L;
+    }
+
+
+    // ----------------------------------------------------------
     private class PluginsTransferHandler extends TransferHandler
     {
         //~ Methods ...........................................................
@@ -711,6 +881,8 @@ public class MainFrameBuilder
     private JFrame frame;
     private JFileChooser fileChooser;
     private JPanel mainPanel;
+    private JTextField webCatHomeField;
+    private JButton webCatHomeBrowseButton;
     private JTextField submissionField;
     private JButton submissionBrowseButton;
     private JPanel propertiesPanel;
