@@ -97,7 +97,10 @@ public class PluginConfiguration
 
         optionPlists = config.getList("assignmentOptions");
         addOptionsToMap(optionPlists, options);
-        
+
+        optionPlists = config.getList("globalOptions");
+        addOptionsToMap(optionPlists, options);
+
         return options;
     }
 
