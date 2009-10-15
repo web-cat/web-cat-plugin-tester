@@ -1,5 +1,5 @@
-Please download the following libraries from their sources on the web and place
-them in this directory:
+Run the "download-libs" task in this project's Ant build.xml file in order to
+download the following libraries into this lib directory:
 
 commons-collections-3.2.1.jar
 commons-configuration-1.6.jar
