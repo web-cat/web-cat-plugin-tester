@@ -19,7 +19,7 @@
  |  along with Web-CAT; if not, see <http://www.gnu.org/licenses/>.
 \*==========================================================================*/
 
-package net.sf.webcat.plugintester;
+package org.webcat.plugintester;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
-import net.sf.webcat.plugintester.util.PluginConfiguration;
-import net.sf.webcat.plugintester.util.WebCATConfiguration;
+import org.webcat.plugintester.util.PluginConfiguration;
+import org.webcat.plugintester.util.WebCATConfiguration;
 
 //-------------------------------------------------------------------------
 /**

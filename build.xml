@@ -2,46 +2,46 @@
 <!-- $Id$ -->
 <project basedir="." name="WebCATPluginTester" default="create-distributable">
 
-	<!--
-	    Properties relating to Java compilation and packaging.
-	-->
-	<property environment="env"/>
+    <!--
+        Properties relating to Java compilation and packaging.
+    -->
+    <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.5"/>
     <property name="source" value="1.5"/>
     <property name="executable.jar" value="${ant.project.name}.jar"/>
 
-	<!--
-	    Properties relating to distribution.
-	-->
-	<property name="distributable.version" value="1.0.1"/>
-	<property name="distributable.zip"
-		      value="${ant.project.name}-${distributable.version}.zip"/>
+    <!--
+        Properties relating to distribution.
+    -->
+    <property name="distributable.version" value="1.0.1"/>
+    <property name="distributable.zip"
+              value="${ant.project.name}-${distributable.version}.zip"/>
 
-	<!--
-	    The directory that external libraries will be temporarily downloaded
-	    into.
-	-->
-	<property name="download.dir"
-		      value="${java.io.tmpdir}/${user.name}/${ant.project.name}"/>
+    <!--
+        The directory that external libraries will be temporarily downloaded
+        into.
+    -->
+    <property name="download.dir"
+              value="${java.io.tmpdir}/${user.name}/${ant.project.name}"/>
 
-	<!--
-	    Versions of the Apache Commons libraries used by this project.
-	-->
-	<property name="commons.collections.version" value="3.2.1"/>
+    <!--
+        Versions of the Apache Commons libraries used by this project.
+    -->
+    <property name="commons.collections.version" value="3.2.1"/>
     <property name="commons.configuration.version" value="1.6"/>
     <property name="commons.lang.version" value="2.4"/>
     <property name="commons.logging.version" value="1.1.1"/>
 
-	<!--
-	    Filenames of the Apache Commons library JAR files used by this project.
-	-->
+    <!--
+        Filenames of the Apache Commons library JAR files used by this project.
+    -->
     <property name="commons.collections.prefix"
               value="commons-collections-${commons.collections.version}"/>
     <property name="commons.collections.jar"
               value="${commons.collections.prefix}.jar"/>
 
-	<property name="commons.configuration.prefix"
+    <property name="commons.configuration.prefix"
               value="commons-configuration-${commons.configuration.version}"/>
     <property name="commons.configuration.jar"
               value="${commons.configuration.prefix}.jar"/>
@@ -54,13 +54,13 @@
     <property name="commons.logging.prefix"
               value="commons-logging-${commons.logging.version}"/>
     <property name="commons.logging.jar"
-    	      value="${commons.logging.prefix}.jar"/>
+              value="${commons.logging.prefix}.jar"/>
 
-	<!--
-	    URLs to the Apache Commons libraries used by this project for download.
-	-->
+    <!--
+        URLs to the Apache Commons libraries used by this project for download.
+    -->
     <property name="apache.mirror.url"
-	          value="http://www.apache.org/dist"/>
+              value="http://www.apache.org/dist"/>
     <property name="commons.collections.url"
               value="${apache.mirror.url}/commons/collections/binaries/commons-collections-${commons.collections.version}-bin.zip"/>
     <property name="commons.configuration.url"
@@ -70,11 +70,11 @@
     <property name="commons.logging.url"
               value="${apache.mirror.url}/commons/logging/binaries/commons-logging-${commons.logging.version}-bin.zip"/>
 
-	<!--
-	    The classpath used by this project, including the Apache Commons
-	    libraries.
-	-->
-	<path id="WebCATPluginTester.classpath">
+    <!--
+        The classpath used by this project, including the Apache Commons
+        libraries.
+    -->
+    <path id="WebCATPluginTester.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/${commons.collections.jar}"/>
         <pathelement location="lib/${commons.configuration.jar}"/>
@@ -85,7 +85,7 @@
     <!--
         Downloads an archive from the web, extracts it into a temporary
         directory, and copies a file from inside it to a specified location.
-        
+
         Properties:
           - url.to.download: the URL of the file
           - path.in.archive: the path of the file inside the archive to be
@@ -94,14 +94,14 @@
                 copied
     -->
     <target name="download-and-extract" unless="file.exists">
-    	<echo message="Downloading ${url.to.download}"/>
-    	<mkdir dir="${download.dir}/extracted"/>
+        <echo message="Downloading ${url.to.download}"/>
+        <mkdir dir="${download.dir}/extracted"/>
         <get src="${url.to.download}" dest="${download.dir}/download.zip"/>
-    	<unzip src="${download.dir}/download.zip"
-    		   dest="${download.dir}/extracted"/>
-    	<copy file="${download.dir}/extracted/${path.in.archive}"
+        <unzip src="${download.dir}/download.zip"
+               dest="${download.dir}/extracted"/>
+        <copy file="${download.dir}/extracted/${path.in.archive}"
               todir="${destination.path}"/>
-    	<delete dir="${download.dir}"/>
+        <delete dir="${download.dir}"/>
     </target>
 
     <!--
@@ -109,12 +109,12 @@
         sources on the web.
     -->
     <target name="download-libs">
-    	<available property="file.exists"
-    		       file="lib/${commons.collections.jar}"/>
+        <available property="file.exists"
+                   file="lib/${commons.collections.jar}"/>
         <antcall target="download-and-extract">
             <param name="url.to.download" value="${commons.collections.url}"/>
             <param name="path.in.archive"
-            	   value="${commons.collections.prefix}/${commons.collections.jar}"/>
+                   value="${commons.collections.prefix}/${commons.collections.jar}"/>
             <param name="destination.path" value="lib"/>
         </antcall>
         <available property="file.exists"
@@ -122,7 +122,7 @@
         <antcall target="download-and-extract">
             <param name="url.to.download" value="${commons.configuration.url}"/>
             <param name="path.in.archive"
-            	   value="${commons.configuration.prefix}/${commons.configuration.jar}"/>
+                   value="${commons.configuration.prefix}/${commons.configuration.jar}"/>
             <param name="destination.path" value="lib"/>
         </antcall>
         <available property="file.exists"
@@ -130,26 +130,26 @@
         <antcall target="download-and-extract">
             <param name="url.to.download" value="${commons.lang.url}"/>
             <param name="path.in.archive"
-            	   value="${commons.lang.prefix}/${commons.lang.jar}"/>
+                   value="${commons.lang.prefix}/${commons.lang.jar}"/>
             <param name="destination.path" value="lib"/>
         </antcall>
         <available property="file.exists"
                    file="lib/${commons.logging.url}"/>
         <antcall target="download-and-extract">
             <param name="url.to.download" value="${commons.logging.url}"/>
-        	<param name="path.in.archive"
-        		   value="${commons.logging.prefix}/${commons.logging.jar}"/>
-        	<param name="destination.path" value="lib"/>
+            <param name="path.in.archive"
+                   value="${commons.logging.prefix}/${commons.logging.jar}"/>
+            <param name="destination.path" value="lib"/>
         </antcall>
     </target>
 
-	<!--
-	    Clean the build artifacts.
-	-->
-	<target name="clean">
+    <!--
+        Clean the build artifacts.
+    -->
+    <target name="clean">
         <delete dir="bin"/>
-		<delete dir="build"/>
-	</target>
+        <delete dir="build"/>
+    </target>
 
     <!--
         Initialize the build by copying any resources that are not Java source
@@ -164,10 +164,10 @@
         </copy>
     </target>
 
-	<!--
-	    Build the Java source code for the project.
-	-->
-	<target name="build" depends="init, download-libs">
+    <!--
+        Build the Java source code for the project.
+    -->
+    <target name="build" depends="init, download-libs">
         <echo message="Compiling Java source for ${ant.project.name}"/>
         <javac debug="true"
                debuglevel="${debuglevel}"
@@ -179,18 +179,18 @@
         </javac>
     </target>
 
-	<!--
-	    Creates a self-distributable executable JAR file for this tool.
-	-->
+    <!--
+        Creates a self-distributable executable JAR file for this tool.
+    -->
     <target name="create-jar" depends="build">
-    	<echo message="Packaging executable JAR file"/>
-    	<mkdir dir="build"/>
+        <echo message="Packaging executable JAR file"/>
+        <mkdir dir="build"/>
         <jar destfile="build/${executable.jar}"
-        	 filesetmanifest="mergewithoutmain">
+             filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Main-Class"
-                	       value="net.sf.webcat.plugintester.Application"/>
+                           value="org.webcat.plugintester.Application"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="bin"/>
@@ -204,32 +204,32 @@
     <!--
         Generates the documentation files for the distributable package.
     -->
-	<target name="generate-documentation">
-		<echo message="Generating documentation for distributable package"/>
-		<tstamp>
-			<format property="distributable.date" pattern="MMM dd, yyyy"/>
-		</tstamp>
-		<copy todir="help">
-			<fileset dir="help" includes="**/*.template"/>
-			<globmapper from="*.template" to="*"/>
-			<filterset>
-		        <filter token="VERSION" value="${distributable.version}"/>
-				<filter token="BUILD_DATE" value="${distributable.date}"/>
-		    </filterset>
-		</copy>
-	</target>
+    <target name="generate-documentation">
+        <echo message="Generating documentation for distributable package"/>
+        <tstamp>
+            <format property="distributable.date" pattern="MMM dd, yyyy"/>
+        </tstamp>
+        <copy todir="help">
+            <fileset dir="help" includes="**/*.template"/>
+            <globmapper from="*.template" to="*"/>
+            <filterset>
+                <filter token="VERSION" value="${distributable.version}"/>
+                <filter token="BUILD_DATE" value="${distributable.date}"/>
+            </filterset>
+        </copy>
+    </target>
 
     <!--
         Creates the distributable zip package for the tool, which contains the
         executable JAR file, documentation, and can be uploaded to SourceForge.
     -->
-	<target name="create-distributable"
-		    depends="create-jar, generate-documentation">
-		<echo message="Packaging distributable zip file"/>
-		<zip destfile="build/${distributable.zip}">
-			<fileset dir="build" includes="${executable.jar}"/>
-			<fileset dir="." includes="help/**" excludes="help/**/*.template"/>
-		</zip>
+    <target name="create-distributable"
+            depends="create-jar, generate-documentation">
+        <echo message="Packaging distributable zip file"/>
+        <zip destfile="build/${distributable.zip}">
+            <fileset dir="build" includes="${executable.jar}"/>
+            <fileset dir="." includes="help/**" excludes="help/**/*.template"/>
+        </zip>
     </target>
 
 </project>

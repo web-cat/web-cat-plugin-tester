@@ -19,7 +19,7 @@
  |  along with Web-CAT; if not, see <http://www.gnu.org/licenses/>.
 \*==========================================================================*/
 
-package net.sf.webcat.plugintester.ui;
+package org.webcat.plugintester.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -54,16 +54,16 @@ import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
-import net.sf.webcat.plugintester.AppConstants;
-import net.sf.webcat.plugintester.PluginRunner;
-import net.sf.webcat.plugintester.util.PluginConfiguration;
-import net.sf.webcat.plugintester.util.WebCATConfiguration;
 import org.apache.commons.configuration.plist.PropertyListConfiguration;
+import org.webcat.plugintester.AppConstants;
+import org.webcat.plugintester.PluginRunner;
+import org.webcat.plugintester.util.PluginConfiguration;
+import org.webcat.plugintester.util.WebCATConfiguration;
 
 //-------------------------------------------------------------------------
 /**
  * Manages the main frame window for the application.
- * 
+ *
  * @author Tony Allevato
  * @version $Id$
  */
@@ -74,7 +74,7 @@ public class MainFrameBuilder
     // ----------------------------------------------------------
     /**
      * Initializes a new instances of the MainFrameBuilder class.
-     * 
+     *
      * @param wcConfig the object that represents the Web-CAT application
      *     configuration
      * @param settings the Properties object that contains the settings that
@@ -94,8 +94,8 @@ public class MainFrameBuilder
 
         frame.setLocationRelativeTo(null);
     }
-    
-    
+
+
     //~ Methods ...............................................................
 
     // ----------------------------------------------------------
@@ -106,12 +106,12 @@ public class MainFrameBuilder
     {
         frame.setVisible(true);
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * Creates and lays out the Swing components for the window.
-     * 
+     *
      * @param frame the JFrame instance that will contain the components
      */
     private void constructFrame(JFrame frame)
@@ -342,7 +342,7 @@ public class MainFrameBuilder
         frame.pack();
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Initializes the frame components with values obtained from the current
@@ -350,32 +350,32 @@ public class MainFrameBuilder
      */
     private void initializeFields()
     {
-    	String homePath = currentSettings.getProperty(
-    			AppConstants.PROP_WEBCAT_HOME);
-    	
-    	if (homePath != null)
-    	{
-    		webCatHomeField.setText(homePath);
-    	}
+        String homePath = currentSettings.getProperty(
+                AppConstants.PROP_WEBCAT_HOME);
+
+        if (homePath != null)
+        {
+            webCatHomeField.setText(homePath);
+        }
 
         String subPath = currentSettings.getProperty(
                 AppConstants.PROP_LAST_SUBMISSION_PATH);
-        
+
         if (subPath != null)
         {
             submissionField.setText(subPath);
         }
-        
+
         pluginsModel.updateModelFromProperties(currentSettings);
-        
+
         String props = currentSettings.getProperty(
                 AppConstants.PROP_USER_GRADING_PROPERTIES);
-        
+
         if (props != null)
         {
             propertiesEditor.setText(props);
         }
-        
+
         updateDocumentationPane();
     }
 
@@ -383,14 +383,14 @@ public class MainFrameBuilder
     // ----------------------------------------------------------
     /**
      * Sets the Web-CAT home location to the specified directory.
-     * 
+     *
      * @param file a File object that represents the directory containing the
      *     Web-CAT server
      */
     private void setWebCATHome(File file)
     {
         String path;
-        
+
         if (file.isDirectory())
         {
             path = file.getAbsolutePath();
@@ -407,7 +407,7 @@ public class MainFrameBuilder
         }
 
         webCatHomeField.setText(path);
-        
+
         if (path == null)
         {
             currentSettings.remove(AppConstants.PROP_WEBCAT_HOME);
@@ -423,14 +423,14 @@ public class MainFrameBuilder
     // ----------------------------------------------------------
     /**
      * Sets the current submission to the specified directory.
-     * 
+     *
      * @param file a File object that represents the directory containing the
      *     submission to use for testing
      */
     private void setSubmission(File file)
     {
         String path;
-        
+
         if (file.isDirectory())
         {
             path = file.getAbsolutePath();
@@ -447,7 +447,7 @@ public class MainFrameBuilder
         }
 
         submissionField.setText(path);
-        
+
         if (path == null)
         {
             currentSettings.remove(AppConstants.PROP_LAST_SUBMISSION_PATH);
@@ -463,7 +463,7 @@ public class MainFrameBuilder
     /**
      * Adds the plugin represented by the specified file or directory to the
      * testing chain.
-     * 
+     *
      * @param file a File object that represents either the directory
      *     containing the grading plugin or the config.plist file inside the
      *     plugin's directory
@@ -471,10 +471,26 @@ public class MainFrameBuilder
     private void addPlugin(File file)
     {
         String path;
-        
+
         if (file.isDirectory())
         {
-            path = file.getAbsolutePath();
+            File configFile = new File(file, "config.plist");
+
+            if (configFile.exists())
+            {
+                path = file.getAbsolutePath();
+            }
+            else
+            {
+                path = null;
+                JOptionPane.showMessageDialog(frame,
+                        "The selection you have made does not appear to be\n" +
+                        "a valid grading plug-in. You should either select the\n" +
+                        "directory that represents the plug-in contents, or\n" +
+                        "the config.plist file inside that directory.",
+                        "Not a valid plug-in",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
         else
         {
@@ -527,7 +543,7 @@ public class MainFrameBuilder
     /**
      * Called when the "Browse..." button is pressed to let the user choose the
      * Web-CAT home location.
-     * 
+     *
      * @param evt the event
      */
     private void webCatHomeBrowseButtonActionPerformed(ActionEvent evt)
@@ -543,7 +559,7 @@ public class MainFrameBuilder
     /**
      * Called when the "Browse..." button is pressed to let the user choose the
      * submission to be used for testing.
-     * 
+     *
      * @param evt the event
      */
     private void submissionBrowseButtonActionPerformed(ActionEvent evt)
@@ -554,12 +570,12 @@ public class MainFrameBuilder
         }
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Called when the "Add..." button is pressed to let the user choose a
      * plugin to be added to the testing chain.
-     * 
+     *
      * @param evt the event
      */
     private void pluginAddButtonActionPerformed(ActionEvent evt)
@@ -570,18 +586,18 @@ public class MainFrameBuilder
         }
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Called when the "Remove" button is pressed to let the user remove the
      * currently selected plugin from the testing chain.
-     * 
+     *
      * @param evt the event
      */
     private void pluginRemoveButtonActionPerformed(ActionEvent evt)
     {
         int row = pluginsTable.getSelectedRow();
-        
+
         if (row != -1)
         {
             pluginsModel.removePluginAtIndex(row);
@@ -590,12 +606,12 @@ public class MainFrameBuilder
         }
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Called when the "Run Plug-ins" button is pressed to begin the grading
      * process.
-     * 
+     *
      * @param evt the event
      */
     private void runButtonActionPerformed(ActionEvent evt)
@@ -604,8 +620,8 @@ public class MainFrameBuilder
 
         runner.run();
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * Updates the documentation pane with property descriptions when the
@@ -617,19 +633,19 @@ public class MainFrameBuilder
         buffer.append("<html><body>");
 
         String[] plugins = pluginsModel.getPlugins();
-        
+
         for (String pluginDir : plugins)
         {
             PluginConfiguration pluginConfig =
                 new PluginConfiguration(new File(pluginDir));
-            
+
             Map<String, PropertyListConfiguration> option =
                 pluginConfig.getOptions();
 
             for (String optionName : option.keySet())
             {
                 PropertyListConfiguration plist = option.get(optionName);
-                
+
                 appendPropertyInfoToBuffer(plist, buffer);
             }
         }
@@ -644,7 +660,7 @@ public class MainFrameBuilder
     /**
      * Appends a description of the specified property as HTML to a string
      * buffer.
-     * 
+     *
      * @param plist the property list containing information about the property
      * @param buffer the buffer to which the description will be appended
      */
@@ -680,7 +696,7 @@ public class MainFrameBuilder
         // ----------------------------------------------------------
         /**
          * Returns true if the dropped content is a file; otherwise, false.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param transferFlavors the data flavors of the content being dropped
          * @return true if the dropped content is a file; otherwise, false.
@@ -695,16 +711,16 @@ public class MainFrameBuilder
                     return true;
                 }
             }
-            
+
             return false;
         }
-        
+
 
         // ----------------------------------------------------------
         /**
          * Sets the current submission for testing to the dropped file, if
          * possible.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param t the data being dropped
          * @return true if the content was successfully dropped; otherwise,
@@ -728,7 +744,7 @@ public class MainFrameBuilder
             {
                 e.printStackTrace();
             }
-            
+
             return false;
         }
 
@@ -746,12 +762,12 @@ public class MainFrameBuilder
      */
     private class WebCATHomeTransferHandler extends TransferHandler
     {
-		//~ Methods ...........................................................
+        //~ Methods ...........................................................
 
         // ----------------------------------------------------------
         /**
          * Returns true if the dropped content is a file; otherwise, false.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param transferFlavors the data flavors of the content being dropped
          * @return true if the dropped content is a file; otherwise, false.
@@ -766,16 +782,16 @@ public class MainFrameBuilder
                     return true;
                 }
             }
-            
+
             return false;
         }
-        
+
 
         // ----------------------------------------------------------
         /**
          * Sets the current submission for testing to the dropped file, if
          * possible.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param t the data being dropped
          * @return true if the content was successfully dropped; otherwise,
@@ -799,14 +815,14 @@ public class MainFrameBuilder
             {
                 e.printStackTrace();
             }
-            
+
             return false;
         }
 
 
         //~ Instance/static variables .........................................
 
-		private static final long serialVersionUID = 771815718413890191L;
+        private static final long serialVersionUID = 771815718413890191L;
     }
 
 
@@ -818,7 +834,7 @@ public class MainFrameBuilder
         // ----------------------------------------------------------
         /**
          * Returns true if the dropped content is a file; otherwise, false.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param transferFlavors the data flavors of the content being dropped
          * @return true if the dropped content is a file; otherwise, false.
@@ -833,15 +849,15 @@ public class MainFrameBuilder
                     return true;
                 }
             }
-            
+
             return false;
         }
-        
+
 
         // ----------------------------------------------------------
         /**
          * Adds the dropped file to the plugin chain, if possible.
-         * 
+         *
          * @param comp the component receiving the drop
          * @param t the data being dropped
          * @return true if the content was successfully dropped; otherwise,
@@ -865,11 +881,11 @@ public class MainFrameBuilder
             {
                 e.printStackTrace();
             }
-            
+
             return false;
         }
 
-    
+
         //~ Instance/static variables .........................................
 
         private static final long serialVersionUID = -99073136818056014L;

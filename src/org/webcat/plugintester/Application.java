@@ -19,13 +19,13 @@
  |  along with Web-CAT; if not, see <http://www.gnu.org/licenses/>.
 \*==========================================================================*/
 
-package net.sf.webcat.plugintester;
+package org.webcat.plugintester;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import net.sf.webcat.plugintester.ui.MainFrameBuilder;
-import net.sf.webcat.plugintester.util.ImmediateProperties;
-import net.sf.webcat.plugintester.util.WebCATConfiguration;
+import org.webcat.plugintester.ui.MainFrameBuilder;
+import org.webcat.plugintester.util.ImmediateProperties;
+import org.webcat.plugintester.util.WebCATConfiguration;
 
 //-------------------------------------------------------------------------
 /**
