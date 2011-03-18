@@ -54,6 +54,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
+
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.plist.PropertyListConfiguration;
 import org.webcat.plugintester.AppConstants;
 import org.webcat.plugintester.PluginRunner;
@@ -513,9 +515,22 @@ public class MainFrameBuilder
 
         if (path != null)
         {
-            pluginsModel.addPlugin(path);
-            pluginsModel.updatePropertiesFromModel(currentSettings);
-            updateDocumentationPane();
+            try
+            {
+                new PluginConfiguration(new File(path));
+                pluginsModel.addPlugin(path);
+                pluginsModel.updatePropertiesFromModel(currentSettings);
+                updateDocumentationPane();
+            }
+            catch (ConfigurationException e)
+            {
+                JOptionPane.showMessageDialog(frame,
+                        "An error occurred while parsing the plug-in's "
+                        + "config.plist:\n\n"
+                        + e.getMessage(),
+                        "Not a valid plug-in",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -636,8 +651,16 @@ public class MainFrameBuilder
 
         for (String pluginDir : plugins)
         {
-            PluginConfiguration pluginConfig =
-                new PluginConfiguration(new File(pluginDir));
+            PluginConfiguration pluginConfig = null;
+
+            try
+            {
+                pluginConfig = new PluginConfiguration(new File(pluginDir));
+            }
+            catch (ConfigurationException e)
+            {
+                // Do nothing.
+            }
 
             Map<String, PropertyListConfiguration> option =
                 pluginConfig.getOptions();

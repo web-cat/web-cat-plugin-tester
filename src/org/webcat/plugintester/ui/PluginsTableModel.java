@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.table.AbstractTableModel;
+
+import org.apache.commons.configuration.ConfigurationException;
 import org.webcat.plugintester.AppConstants;
+import org.webcat.plugintester.util.PluginConfiguration;
 
 //-------------------------------------------------------------------------
 /**
@@ -144,7 +147,15 @@ public class PluginsTableModel extends AbstractTableModel
         
         for (String plugin : pluginNames)
         {
-            plugins.add(plugin);
+            try
+            {
+                new PluginConfiguration(new File(plugin));
+                plugins.add(plugin);
+            }
+            catch (ConfigurationException e)
+            {
+                // Do nothing.
+            }
         }
         
         fireTableDataChanged();

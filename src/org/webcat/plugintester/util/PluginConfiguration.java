@@ -47,18 +47,10 @@ public class PluginConfiguration
      * 
      * @param pluginDir the directory in which the plugin resides
      */
-    public PluginConfiguration(File pluginDir)
+    public PluginConfiguration(File pluginDir) throws ConfigurationException
     {
         File configFile = new File(pluginDir, "config.plist");
-
-        try
-        {
-            config = new PropertyListConfiguration(configFile);
-        }
-        catch (ConfigurationException e)
-        {
-            // Do nothing.
-        }
+        config = new PropertyListConfiguration(configFile);
     }
 
     

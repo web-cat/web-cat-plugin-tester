@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
+
+import org.apache.commons.configuration.ConfigurationException;
 import org.webcat.plugintester.util.PluginConfiguration;
 import org.webcat.plugintester.util.WebCATConfiguration;
 
@@ -202,8 +204,16 @@ public class PluginRunner
      */
     private String getCommandLine(int index, String pluginDir)
     {
-        PluginConfiguration config =
-            new PluginConfiguration(new File(pluginDir));
+        PluginConfiguration config = null;
+        
+        try
+        {
+            config = new PluginConfiguration(new File(pluginDir));
+        }
+        catch (ConfigurationException e)
+        {
+            // Do nothing.
+        }
 
         String executable = "\"" +
             pluginDir + "/" + config.getRootProperty("executable") + "\"";
