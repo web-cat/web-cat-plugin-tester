@@ -35,7 +35,7 @@ import java.util.Properties;
  * Maintains a representation of the Web-CAT application configuration; that
  * is, the subsystem configuration properties and environment variables that
  * are required to properly execute plug-ins.
- * 
+ *
  * @author Tony Allevato
  * @version $Id$
  */
@@ -47,7 +47,7 @@ public class WebCATConfiguration
     /**
      * Initializes the WebCATConfiguration class using paths obtained from the
      * specified Web-CAT server software location.
-     * 
+     *
      * @param wcHome the path to the expanded Web-CAT server software directory
      */
     public WebCATConfiguration(String wcHome)
@@ -72,7 +72,7 @@ public class WebCATConfiguration
     /**
      * Gets the complete environment that should be used to run grading
      * plugins.
-     * 
+     *
      * @return a String[] whose elements are values for environment variables,
      *     in the form "key=value"
      */
@@ -95,13 +95,13 @@ public class WebCATConfiguration
 
         return envp;
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * Gets the Web-CAT application properties that are used when executing
      * grading plugins.
-     * 
+     *
      * @return a Properties object containing the Web-CAT application
      *     properties
      */
@@ -119,30 +119,30 @@ public class WebCATConfiguration
     private void initializeDefaultProperties()
     {
         applicationProperties = new Properties();
-        
+
         // PerlForPlugins
         applicationProperties.setProperty("PerlForPlugins.perl.exe", "perl");
-        
+
         // CloverForPlugins
-        applicationProperties.setProperty("CloverForPlugins.clover.dir",
+        applicationProperties.setProperty("clover.dir",
                 new File(frameworksDir,
                         "CloverForPlugins.framework/Resources/clover").
                         getAbsolutePath());
-        
+
         // CheckstyleForPlugins
-        applicationProperties.setProperty("CheckstyleForPlugins.checkstyle.jar",
+        applicationProperties.setProperty("checkstyle.jar",
                 new File(frameworksDir,
                         "CheckstyleForPlugins.framework/Resources/checkstyle-all.jar").
                         getAbsolutePath());
 
         // PMDForPlugins
-        applicationProperties.setProperty("PMDForPlugins.pmd.lib",
+        applicationProperties.setProperty("pmd.lib",
                 new File(frameworksDir,
                         "PMDForPlugins.framework/Resources/pmd/lib").
                         getAbsolutePath());
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * Uses the system shell to determine the default environment under which
@@ -158,7 +158,7 @@ public class WebCATConfiguration
 
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
-            
+
             String line = in.readLine();
             while (line != null)
             {
@@ -169,7 +169,7 @@ public class WebCATConfiguration
                     String val = line.substring(pos + 1);
                     envMap.put(key, val);
                 }
-                
+
                 line = in.readLine();
             }
         }
@@ -180,8 +180,8 @@ public class WebCATConfiguration
             e.printStackTrace();
         }
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * Initializes a default set of environment variables that contain file
@@ -195,7 +195,7 @@ public class WebCATConfiguration
         // PerlForPlugins
         envMap.put("PERLLIB", new File(frameworksDir,
                 "PerlForPlugins.framework/Resources/lib").getAbsolutePath());
-        
+
         // ANTForPlugins
         String javaHome = System.getProperty("java.home");
         String antHome = new File(frameworksDir,
@@ -208,7 +208,7 @@ public class WebCATConfiguration
         addToPath(antHome + File.separator + "bin");
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Adds the specified directory to the PATH environment variable that will
@@ -234,14 +234,14 @@ public class WebCATConfiguration
             path = "";
             pathKey = isWindows ? "Path" : "PATH";
         }
-        
+
         if (path.length() > 0)
         {
             path = path + File.pathSeparator;
         }
-        
+
         path += dir;
-        
+
         envMap.put(pathKey, path);
     }
 
@@ -258,7 +258,7 @@ public class WebCATConfiguration
         // defaults
     }
 
-    
+
     //~ Instance/static variables .............................................
 
     private final boolean isWindows;

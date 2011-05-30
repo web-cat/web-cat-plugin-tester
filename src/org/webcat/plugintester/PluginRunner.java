@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
-
+import java.util.Set;
 import org.apache.commons.configuration.ConfigurationException;
 import org.webcat.plugintester.util.PluginConfiguration;
 import org.webcat.plugintester.util.WebCATConfiguration;
@@ -38,7 +38,7 @@ import org.webcat.plugintester.util.WebCATConfiguration;
 /**
  * Performs the task of running the plugins based on the settings specified by
  * the user.
- * 
+ *
  * @author Tony Allevato
  * @version $Id$
  */
@@ -50,7 +50,7 @@ public class PluginRunner
     /**
      * Initializes a new PluginRunner with the specified application
      * configuration and current settings.
-     * 
+     *
      * @param wcConfig the Web-CAT application configuration
      * @param settings the current settings specified by the user
      */
@@ -59,7 +59,7 @@ public class PluginRunner
         webcatConfig = wcConfig;
         currentSettings = settings;
     }
-    
+
 
     //~ Methods ...............................................................
 
@@ -86,11 +86,16 @@ public class PluginRunner
         for (String plugin : plugins)
         {
             // Write properties that are plugin-specific before each one runs.
-            
+
             File gradingPropsFile = new File(resultsDir, "grading.properties");
             Properties gradingProps = loadProperties(gradingPropsFile);
             gradingProps.setProperty("scriptHome", plugin);
-            gradingProps.setProperty("timeout", "30");
+
+            if (!gradingProps.containsKey("timeout"))
+            {
+                gradingProps.setProperty("timeout", "30");
+            }
+
             saveProperties(gradingProps, gradingPropsFile);
 
             // Run the plugin.
@@ -100,11 +105,11 @@ public class PluginRunner
         }
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Runs the plugin in the specified folder.
-     * 
+     *
      * @param plugin the path to the plugin to execute
      */
     private void runPlugin(int index, String plugin)
@@ -134,8 +139,8 @@ public class PluginRunner
 
         try
         {
-        	System.out.println("Executing the following argument list:");
-        	System.out.println(Arrays.toString(cmdArray));
+            System.out.println("Executing the following argument list:");
+            System.out.println(Arrays.toString(cmdArray));
 
             if (cmdArray != null)
             {
@@ -163,7 +168,7 @@ public class PluginRunner
     /**
      * Gets the command shell that should be used to execute the grading
      * plugins.
-     * 
+     *
      * @return the command shell
      */
     private String cmdShell()
@@ -171,7 +176,7 @@ public class PluginRunner
         if (cmdShellCache == null)
         {
             String os = System.getProperty("os.name");
-    
+
             if (os != null && os.indexOf("Windows") >= 0)
             {
                 cmdShellCache = "cmd /c";
@@ -180,7 +185,7 @@ public class PluginRunner
             {
                 cmdShellCache = "sh -c \"";
             }
-    
+
             int len = cmdShellCache.length();
             if (len > 0
                    && cmdShellCache.charAt(len - 1) != ' '
@@ -189,7 +194,7 @@ public class PluginRunner
                 cmdShellCache += " ";
             }
         }
-        
+
         return cmdShellCache;
     }
 
@@ -198,14 +203,14 @@ public class PluginRunner
     /**
      * Constructs the command line that should be used to execute the specified
      * plugin, based on the values in the plugin's config.plist file.
-     * 
+     *
      * @param pluginDir the directory that contains the plugin
      * @return the command line to use to execute the plugin
      */
     private String getCommandLine(int index, String pluginDir)
     {
         PluginConfiguration config = null;
-        
+
         try
         {
             config = new PluginConfiguration(new File(pluginDir));
@@ -217,7 +222,7 @@ public class PluginRunner
 
         String executable = "\"" +
             pluginDir + "/" + config.getRootProperty("executable") + "\"";
-        
+
         String interpreterPrefix =
             config.getRootProperty("interpreter..prefix");
 
@@ -230,9 +235,9 @@ public class PluginRunner
         cmdLine = substituteApplicationProperties(executable);
         cmdLine += " ";
         cmdLine += "\"" +
-        	new File(resultsDir, "grading.properties").getAbsolutePath() +
-        	"\"";
-        
+            new File(resultsDir, "grading.properties").getAbsolutePath() +
+            "\"";
+
         File stdoutFile = new File(resultsDir, "" + index + "-stdout.txt");
         File stderrFile = new File(resultsDir, "" + index + "-stderr.txt");
 
@@ -273,12 +278,12 @@ public class PluginRunner
         // entered directly into the user interface.
 
         Properties gradingProps = new Properties();
-        
+
         initializeDefaultGradingProperties(gradingProps);
-        
+
         Properties testProps = loadProperties(
                 new File(parentDir, "test.properties"));
-        
+
         gradingProps.putAll(testProps);
 
         Properties userProps = getPropertiesFromString(
@@ -291,12 +296,12 @@ public class PluginRunner
                 new File(resultsDir, "grading.properties"));
     }
 
-    
+
     // ----------------------------------------------------------
     /**
      * Initializes the specified properties objects with hard-coded default
      * values for the grading.properties file.
-     * 
+     *
      * @param props the Properties object to initialize
      */
     private void initializeDefaultGradingProperties(Properties props)
@@ -318,20 +323,28 @@ public class PluginRunner
         props.setProperty("course", "DummyCourse");
         props.setProperty("CRN", "DummyCRN");
         props.setProperty("assignment", "DummyAssignment");
-        
+
         Date now = new Date();
         props.setProperty("dueDateTimestamp",
                 Long.toString(now.getTime() + 86400000));
         props.setProperty("submissionTimestamp",
                 Long.toString(now.getTime()));
         props.setProperty("submissionNo", "1");
-        
+
         String webcatHome = currentSettings.getProperty(
                 AppConstants.PROP_WEBCAT_HOME);
 
         props.setProperty("frameworksBaseURL", new File(webcatHome,
                 "WEB-INF/Web-CAT.woa/Contents/Library/Frameworks").
                 getAbsolutePath());
+
+        Properties appProps = webcatConfig.applicationProperties();
+
+        for (Object key : appProps.keySet())
+        {
+            props.setProperty((String) key,
+                    appProps.getProperty((String) key));
+        }
     }
 
 
@@ -340,13 +353,13 @@ public class PluginRunner
      * Deletes the contents of the specified directory (recursively deleting
      * any child directories as well). The directory itself will <b>not</b> be
      * deleted; it will be empty after this operation.
-     * 
+     *
      * @param dir the directory that will be emptied
      */
     private void deleteContents(File dir)
     {
         File[] entries = dir.listFiles();
-        
+
         for(File entry : entries)
         {
             if (entry.isDirectory())
@@ -363,7 +376,7 @@ public class PluginRunner
     /**
      * Substitutes values from the Web-CAT application configuration into
      * plugin properties that use the ${var} syntax for variable substitution.
-     * 
+     *
      * @param value the value that will have values substituted into it
      * @return the new value with substitutions made
      */
@@ -373,7 +386,7 @@ public class PluginRunner
         final String REFERENCE_END = "}";
 
         // Get the index of the first constant, if any.
-        
+
         StringBuffer buffer = new StringBuffer(value.length());
         int beginIndex = 0;
         int startName = value.indexOf(REFERENCE_START, beginIndex);
@@ -411,7 +424,7 @@ public class PluginRunner
             }
 
             beginIndex = endName + REFERENCE_END.length();
-            
+
             // Look for the next constant
             startName = value.indexOf(REFERENCE_START, beginIndex);
         }
@@ -425,7 +438,7 @@ public class PluginRunner
     /**
      * Creates a Properties object that contains the key-value pairs in the
      * specified string.
-     * 
+     *
      * @param propString a String containing the textual form of an ASCII
      *     properties file
      * @return the Properties object containing the properties
@@ -433,12 +446,12 @@ public class PluginRunner
     private Properties getPropertiesFromString(String propString)
     {
         Properties props = new Properties();
-        
+
         if (propString != null)
         {
             ByteArrayInputStream stream = new ByteArrayInputStream(
                     propString.getBytes());
-            
+
             try
             {
                 props.load(stream);
@@ -457,7 +470,7 @@ public class PluginRunner
     /**
      * A helper method to load a Properties object from a file, ignoring
      * exceptions.
-     * 
+     *
      * @param file the file from which to load the properties
      * @return a Properties object containing the properties from the file, or
      *     empty if there was an error
@@ -491,16 +504,16 @@ public class PluginRunner
                 // Do nothing.
             }
         }
-        
+
         return props;
     }
-    
-    
+
+
     // ----------------------------------------------------------
     /**
      * A helper method to save a Properties object to a file, ignoring
      * exceptions.
-     * 
+     *
      * @param props the Properties object to save
      * @param file the file to which to save the properties
      */
